@@ -1,0 +1,35 @@
+{
+  "name": "Second company",
+  "platoons": [
+    {
+      "name": "4",
+      "soldiers": [
+        {
+          "name": "jhon due",
+          "serial_number": "1111111",
+          "platoon": "4",
+          "preferred_shift": "Morning",
+          "authorizations": [
+            "Guard Duty"
+          ],
+          "home_time_constraints": {}
+        }
+      ],
+      "weekly_missions": [],
+      "home_time_schedule": {},
+      "platoon_constraints": {}
+    }
+  ],
+  "missions": [],
+  "weekly_assignments": {},
+  "company_policies": {},
+  "system_authorizations": [
+    "Guard Duty",
+    "Patrol",
+    "Equipment Maintenance",
+    "Medical Support",
+    "Driver",
+    "Weapons Specialist",
+    "Logistics"
+  ]
+}
