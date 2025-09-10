@@ -24,12 +24,20 @@
   "weekly_assignments": {},
   "company_policies": {},
   "system_authorizations": [
-    "Guard Duty",
-    "Patrol",
-    "Equipment Maintenance",
-    "Medical Support",
     "Driver",
-    "Weapons Specialist",
-    "Logistics"
+    "Heavy vehicle driver",
+    "Kashar",
+    "Medic",
+    "Kaala",
+    "Negev",
+    "MAG",
+    "Drone operator",
+    "Poretz",
+    "Commander",
+    "Platoon commander",
+    "Platoon commander deputy",
+    "interrogator",
+    "Matol",
+    "Sniper"
   ]
 }
