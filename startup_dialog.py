@@ -16,15 +16,15 @@ class StartupDialog:
         # Create the startup window
         self.root = tk.Tk()
         self.root.title("Military Scheduling System - Startup")
-        self.root.geometry("750x700")
+        self.root.geometry("550x700")
         self.root.configure(bg=colors["content_bg"])
 
         # Center the window
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
-        x = (screen_width - 750) // 2
+        x = (screen_width - 550) // 2
         y = (screen_height - 700) // 2
-        self.root.geometry(f"750x700+{x}+{y}")
+        self.root.geometry(f"550x700+{x}+{y}")
 
         # Make it non-resizable and bring to front
         self.root.resizable(False, False)
@@ -163,8 +163,16 @@ class StartupDialog:
         list_container = tk.Frame(existing_frame, bg=self.colors["content_bg"])
         list_container.pack(fill='both', expand=True)
 
-        # Create canvas for scrolling
-        canvas = tk.Canvas(list_container, bg=self.colors["content_bg"], height=200)
+        # Calculate appropriate height based on number of companies
+        # Each company card is roughly 80px tall including padding
+        card_height = 80
+        max_visible_cards = 4  # Show up to 4 cards without scrolling
+        min_height = 150  # Minimum height
+        calculated_height = min(len(self.company_files) * card_height + 20, max_visible_cards * card_height)
+        canvas_height = max(calculated_height, min_height)
+
+        # Create canvas for scrolling with calculated height
+        canvas = tk.Canvas(list_container, bg=self.colors["content_bg"], height=canvas_height)
         scrollbar = ttk.Scrollbar(list_container, orient="vertical", command=canvas.yview)
         scrollable_frame = tk.Frame(canvas, bg=self.colors["content_bg"])
 
@@ -184,70 +192,42 @@ class StartupDialog:
         scrollbar.pack(side="right", fill="y")
 
     def create_company_card(self, parent, company, index):
-        """Create a card for each company"""
+        """Create a card for each company - WITHOUT the select button"""
         print(f"Creating card for company: {company['name']}")  # Debug
 
-        # Card frame
-        card_frame = tk.Frame(parent, bg=self.colors["card_shadow"], relief='solid', bd=1)
-        card_frame.pack(fill='x', pady=5, padx=10)
+        # Card frame - made wider with better padding
+        card_frame = tk.Frame(parent, bg=self.colors["card_shadow"], relief='solid', bd=1, cursor='hand2')
+        card_frame.pack(fill='x', pady=8, padx=5)  # fill='x' makes it use full width
 
-        # Card content
-        content_frame = tk.Frame(card_frame, bg=self.colors["card_shadow"])
-        content_frame.pack(fill='x', padx=15, pady=10)
+        # Card content - increased padding for better spacing
+        content_frame = tk.Frame(card_frame, bg=self.colors["card_shadow"], cursor='hand2')
+        content_frame.pack(fill='x', padx=20, pady=15)  # Increased horizontal padding
 
-        # Company name and select button
-        header_frame = tk.Frame(content_frame, bg=self.colors["card_shadow"])
+        # Company name (removed the select button section)
+        header_frame = tk.Frame(content_frame, bg=self.colors["card_shadow"], cursor='hand2')
         header_frame.pack(fill='x')
 
         name_label = tk.Label(header_frame,
                               text=company['name'],
                               bg=self.colors["card_shadow"],
                               fg=self.colors["text_primary"],
-                              font=('Segoe UI', 14, 'bold'))
-        name_label.pack(side='left')
-
-        # Create a working select button with proper styling
-        def select_this_company():
-            print(f"Button clicked for company: {company['name']}")
-            self.select_company(company)
-
-        select_btn = tk.Button(header_frame,
-                               text="SELECT",
-                               bg=self.colors["accent"],
-                               fg=self.colors["text_light"],
-                               font=('Segoe UI', 10, 'bold'),
-                               relief='raised',
-                               bd=2,
-                               padx=15,
-                               pady=8,
-                               cursor='hand2',
-                               activebackground=self.colors["sidebar_hover"],
-                               activeforeground=self.colors["text_light"],
-                               command=select_this_company)
-        select_btn.pack(side='right')
-
-        # Add button hover effects
-        def btn_on_enter(event):
-            select_btn.configure(bg=self.colors["sidebar_hover"], relief='raised', bd=3)
-
-        def btn_on_leave(event):
-            select_btn.configure(bg=self.colors["accent"], relief='raised', bd=2)
-
-        select_btn.bind('<Enter>', btn_on_enter)
-        select_btn.bind('<Leave>', btn_on_leave)
+                              font=('Segoe UI', 16, 'bold'),  # Slightly larger font
+                              cursor='hand2')
+        name_label.pack(anchor='w')
 
         # Company details
-        details_frame = tk.Frame(content_frame, bg=self.colors["card_shadow"])
-        details_frame.pack(fill='x', pady=(8, 0))
+        details_frame = tk.Frame(content_frame, bg=self.colors["card_shadow"], cursor='hand2')
+        details_frame.pack(fill='x', pady=(10, 0))  # Increased top padding
 
-        # Statistics
+        # Statistics - made more readable
         stats_text = f"👥 {company['soldiers']} soldiers  •  🎖️ {company['platoons']} platoons  •  🎯 {company['missions']} missions"
         stats_label = tk.Label(details_frame,
                                text=stats_text,
                                bg=self.colors["card_shadow"],
                                fg=self.colors["text_secondary"],
-                               font=('Segoe UI', 10))
-        stats_label.pack(side='left')
+                               font=('Segoe UI', 11),  # Slightly larger font
+                               cursor='hand2')
+        stats_label.pack(anchor='w')
 
         # File info
         file_info = f"📄 {company['filename']}  •  📅 {company['modified']}"
@@ -255,31 +235,51 @@ class StartupDialog:
                               text=file_info,
                               bg=self.colors["card_shadow"],
                               fg=self.colors["text_secondary"],
-                              font=('Segoe UI', 9))
-        file_label.pack(anchor='w', pady=(2, 0))
+                              font=('Segoe UI', 10),
+                              cursor='hand2')
+        file_label.pack(anchor='w', pady=(4, 0))
 
-        # Hover effects
+        # Create the click handler
+        def select_this_company():
+            print(f"Card clicked for company: {company['name']}")
+            self.select_company(company)
+
+        # Enhanced hover effects with click feedback
         def on_enter(e):
             card_frame.configure(bg=self.colors["accent"], bd=2)
             content_frame.configure(bg=self.colors["accent"])
             header_frame.configure(bg=self.colors["accent"])
             details_frame.configure(bg=self.colors["accent"])
             for widget in [name_label, stats_label, file_label]:
-                widget.configure(bg=self.colors["accent"])
+                widget.configure(bg=self.colors["accent"], fg=self.colors["text_light"])
 
         def on_leave(e):
             card_frame.configure(bg=self.colors["card_shadow"], bd=1)
             content_frame.configure(bg=self.colors["card_shadow"])
             header_frame.configure(bg=self.colors["card_shadow"])
             details_frame.configure(bg=self.colors["card_shadow"])
-            for widget in [name_label, stats_label, file_label]:
-                widget.configure(bg=self.colors["card_shadow"])
+            name_label.configure(bg=self.colors["card_shadow"], fg=self.colors["text_primary"])
+            stats_label.configure(bg=self.colors["card_shadow"], fg=self.colors["text_secondary"])
+            file_label.configure(bg=self.colors["card_shadow"], fg=self.colors["text_secondary"])
 
-        # Bind hover effects and click to card
-        for widget in [card_frame, content_frame, header_frame, details_frame, name_label, stats_label, file_label]:
+        def on_button_press(e):
+            # Visual feedback on click
+            card_frame.configure(relief='sunken', bd=3)
+
+        def on_button_release(e):
+            # Return to normal state and execute selection
+            card_frame.configure(relief='solid', bd=2)
+            select_this_company()
+
+        # Bind hover effects and click to all card elements
+        widgets_to_bind = [card_frame, content_frame, header_frame, details_frame,
+                          name_label, stats_label, file_label]
+
+        for widget in widgets_to_bind:
             widget.bind("<Enter>", on_enter)
             widget.bind("<Leave>", on_leave)
-            widget.bind("<Button-1>", lambda e: select_this_company())
+            widget.bind("<ButtonPress-1>", on_button_press)
+            widget.bind("<ButtonRelease-1>", on_button_release)
 
     def create_no_companies_section(self, parent):
         """Create section when no companies exist"""
